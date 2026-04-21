@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Globally deny by default
+    match /{document=**} {
+        allow read, write: if false;
+    }
+
+    // Helper functions
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    // Validation for ClassroomState
+    function isValidClassroomState(data) {
+      return data.keys().hasAll(['temperature', 'occupancy', 'mode', 'lightOn', 'fanOn', 'updatedAt']) 
+             && data.keys().size() == 6
+             && data.temperature is number
+             && data.occupancy is number
+             && data.mode is string && (data.mode == 'AUTO' || data.mode == 'MANUAL_WEB' || data.mode == 'MANUAL_LOCAL')
+             && data.lightOn is bool
+             && data.fanOn is bool
+             && data.updatedAt is number;
+    }
+
+    // Validation for SystemLog
+    function isValidSystemLog(data) {
+      return data.keys().hasAll(['type', 'message', 'timestamp'])
+             && data.keys().size() == 3
+             && data.type is string && (data.type == 'MODE_CHANGE' || data.type == 'LIGHT_TOGGLE' || data.type == 'FAN_TOGGLE' || data.type == 'TEMPERATURE_ALERT' || data.type == 'SYSTEM')
+             && data.message is string && data.message.size() <= 500
+             && data.timestamp is number;
+    }
+
+    // Allow generic access to demo classroom
+    match /classrooms/{classroomId} {
+      allow read: if true; // Open read for demo
+      allow create: if isValidClassroomState(incoming());
+      
+      // Update logic: Partial updates via specific actions allowed
+      allow update: if (
+        // Full state rewrite
+        (incoming().diff(existing()).affectedKeys().hasOnly(['temperature', 'occupancy', 'mode', 'lightOn', 'fanOn', 'updatedAt']) && isValidClassroomState(incoming())) ||
+        // Single toggles (only if mode is MANUAL_WEB or switching modes)
+        (incoming().diff(existing()).affectedKeys().hasOnly(['mode', 'updatedAt']) && incoming().mode in ['AUTO', 'MANUAL_WEB', 'MANUAL_LOCAL'] && incoming().updatedAt is number) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['lightOn', 'updatedAt']) && incoming().lightOn is bool && incoming().updatedAt is number) ||
+        (incoming().diff(existing()).affectedKeys().hasOnly(['fanOn', 'updatedAt']) && incoming().fanOn is bool && incoming().updatedAt is number) ||
+        // IoT sensors updating sensory data
+        (incoming().diff(existing()).affectedKeys().hasOnly(['temperature', 'occupancy', 'updatedAt']) && incoming().temperature is number && incoming().occupancy is number && incoming().updatedAt is number)
+      );
+
+      match /logs/{logId} {
+        allow read: if true; // Open read for logs list query demo
+        allow create: if isValidSystemLog(incoming());
+        allow update, delete: if false; // Logs are immutable
+      }
+    }
+  }
+}
+

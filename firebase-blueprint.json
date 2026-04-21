@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "ClassroomState": {
+      "title": "Classroom State",
+      "description": "Represents the real-time operational state of the smart classroom",
+      "type": "object",
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "description": "Current room temperature in Celsius"
+        },
+        "occupancy": {
+          "type": "number",
+          "description": "Current number of people in the room"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["AUTO", "MANUAL_WEB", "MANUAL_LOCAL"],
+          "description": "Current operating mode of the classroom"
+        },
+        "lightOn": {
+          "type": "boolean",
+          "description": "Whether the lights are turned on"
+        },
+        "fanOn": {
+          "type": "boolean",
+          "description": "Whether the ventilation fan is turned on"
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Timestamp of the last state update"
+        }
+      },
+      "required": ["temperature", "occupancy", "mode", "lightOn", "fanOn", "updatedAt"]
+    },
+    "SystemLog": {
+      "title": "System Log",
+      "description": "Represents an event or standard log from the classroom operations",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["MODE_CHANGE", "LIGHT_TOGGLE", "FAN_TOGGLE", "TEMPERATURE_ALERT", "SYSTEM"],
+          "description": "Category of the log event"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of the event"
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Time the event occurred"
+        }
+      },
+      "required": ["type", "message", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/classrooms/{classroomId}": {
+      "schema": {
+        "$ref": "#/entities/ClassroomState"
+      },
+      "description": "Stores the master state for a classroom"
+    },
+    "/classrooms/{classroomId}/logs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/SystemLog"
+      },
+      "description": "Stores the history of action logs for a classroom"
+    }
+  }
+}

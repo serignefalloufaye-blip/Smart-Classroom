@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  @apply font-sans min-h-screen text-slate-100 selection:bg-cyan-500/50 selection:text-white bg-[#030305];
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(20, 30, 48, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(10, 40, 50, 0.4) 0%, transparent 50%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .vision-glass {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)];
+  }
+  
+  .tesla-panel {
+    @apply bg-[#111113]/80 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+
+  .neon-glow-cyan {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
+  }
+}
+
+/* Custom Scrollbar for cyber theme */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.5);
+}
+
+/* Base resets */
+* {
+  box-sizing: border-box;
+}
+

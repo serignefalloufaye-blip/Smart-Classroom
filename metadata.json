@@ -1,0 +1,6 @@
+{
+  "name": "Smart Classroom Control System",
+  "description": "An ultra-realistic Apple-style IoT dashboard for a smart classroom, featuring real-time controls with Firebase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
