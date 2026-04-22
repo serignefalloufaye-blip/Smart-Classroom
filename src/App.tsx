@@ -159,6 +159,9 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
+    // Force document title to ensure it overrides any cache
+    document.title = "Smart Classroom Control System";
+
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
